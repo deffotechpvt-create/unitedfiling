@@ -27,7 +27,6 @@ const AddToCartButton = ({
       name: serviceName,
       price: price,
     });
-    toast.success(`${serviceName} added to cart!`);
   };
 
   return (

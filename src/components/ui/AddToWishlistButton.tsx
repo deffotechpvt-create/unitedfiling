@@ -32,7 +32,6 @@ const AddToWishlistButton = ({
         name: serviceName,
         price: price,
       });
-      toast.success(`${serviceName} added to wishlist!`);
     }
   };
 

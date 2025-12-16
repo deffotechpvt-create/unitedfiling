@@ -13,9 +13,9 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { useUser } from "@/contexts/UserContext";
 import CartDropdown from "@/components/CartDropdown";
 import WishlistDropdown from "@/components/WishlistDropdown";
 import {
@@ -238,7 +238,6 @@ const registrationItems: {
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -246,27 +245,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { totalItems: cartItems } = useCart();
   const { totalItems: wishlistItems } = useWishlist();
-
-  useEffect(() => {
-    // Check current user session
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-
-    checkUser();
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const { user, logout } = useUser();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -287,7 +266,7 @@ const Header = () => {
   }, [isProfileDropdownOpen]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await logout();
     setIsProfileDropdownOpen(false);
     navigate("/");
   };
@@ -1408,7 +1387,7 @@ const Header = () => {
                   className="flex items-center gap-2 hover:bg-gray-100 rounded-lg p-2 transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-800 font-semibold">
-                    {user.email ? user.email.charAt(0).toUpperCase() : "U"}
+                    {user.name ? user.name.charAt(0).toUpperCase() : (user.email ? user.email.charAt(0).toUpperCase() : "U")}
                   </div>
                   <ChevronDown
                     className={`h-4 w-4 text-gray-600 transition-transform ${
@@ -1422,9 +1401,9 @@ const Header = () => {
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                     <div className="p-3 border-b border-gray-100">
                       <p className="text-sm font-medium text-gray-900">
-                        {user.email}
+                        {user.name || user.email}
                       </p>
-                      <p className="text-xs text-gray-500">Signed in</p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
                     </div>
                     <div className="py-1">
                       <button

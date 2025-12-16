@@ -1,18 +1,23 @@
-
+// src/contexts/CartContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useApi } from '@/lib/api';
+import { toast } from '@/hooks/use-toast';
+import { useUser } from './UserContext';
 
 interface CartItem {
-  id: string;
-  name: string;
+  serviceId: string;
+  serviceName: string;
   price: number;
   quantity: number;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
-  removeFromCart: (id: string) => void;
-  clearCart: () => void;
+  addToCart: (item: { id: string; name: string; price: number }) => Promise<void>;
+  updateCartItem: (serviceId: string, quantity: number) => Promise<void>;
+  removeFromCart: (serviceId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
+  fetchCart: () => Promise<void>;
   totalItems: number;
   totalPrice: number;
 }
@@ -20,38 +25,222 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('cart-items');
-      return savedCart ? JSON.parse(savedCart) : [];
-    }
-    return [];
-  });
+  const api = useApi();
+  const { user, isAuthenticated } = useUser();
+  const [items, setItems] = useState<CartItem[]>([]);
 
+  // Fetch cart when user is authenticated, clear when logged out
   useEffect(() => {
-    localStorage.setItem('cart-items', JSON.stringify(items));
-  }, [items]);
-
-  const addToCart = (newItem: Omit<CartItem, 'quantity'>) => {
-    setItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === newItem.id);
-      if (existingItem) {
-        return prevItems.map(item =>
-          item.id === newItem.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+    if (user) {
+      // Only fetch cart if user is not admin
+      if (user.role !== 'admin') {
+        fetchCart();
       }
-      return [...prevItems, { ...newItem, quantity: 1 }];
-    });
+    } else {
+      // Clear cart when user logs out
+      setItems([]);
+    }
+  }, [user]);
+
+  // Fetch cart from backend
+  const fetchCart = async () => {
+    if (!user || user.role === 'admin') {
+      return;
+    }
+
+    try {
+      const response = await api.get('/cart');
+      setItems(response.data.items || []);
+    } catch (error: any) {
+      console.error('Error fetching cart:', error);
+      // Don't show error toast for 404 (cart doesn't exist yet)
+      if (error.response?.status !== 404) {
+        // Only log other errors, don't disrupt user experience
+        console.warn('Cart fetch failed:', error.response?.data?.message || error.message);
+      }
+      setItems([]);
+    }
   };
 
-  const removeFromCart = (id: string) => {
-    setItems(prevItems => prevItems.filter(item => item.id !== id));
+  // Add item to cart
+  const addToCart = async ({ id, name, price }: { id: string; name: string; price: number }) => {
+    // Check if user is not authenticated
+    if (!isAuthenticated) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please login to add items to cart',
+        variant: 'destructive',
+      });
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+      return;
+    }
+
+    // Check if user is admin
+    if (user?.role === 'admin') {
+      toast({
+        title: 'Admin Account Detected',
+        description: 'Admin accounts cannot add items to cart. Redirecting to admin dashboard...',
+        variant: 'default',
+      });
+      
+      setTimeout(() => {
+        window.location.href = '/admin';
+      }, 1500);
+      return;
+    }
+
+    try {
+      const response = await api.post('/cart/add', {
+        serviceId: id,
+        serviceName: name,
+        price: price,
+        quantity: 1
+      });
+      setItems(response.data.cart.items || []);
+      toast({
+        title: 'Success',
+        description: 'Added to cart!',
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to add to cart';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    }
   };
 
-  const clearCart = () => {
-    setItems([]);
+  // Update cart item quantity
+  const updateCartItem = async (serviceId: string, quantity: number) => {
+    if (!isAuthenticated) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please login to manage cart',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Check if user is admin
+    if (user?.role === 'admin') {
+      toast({
+        title: 'Admin Account',
+        description: 'Admin accounts cannot manage cart. Redirecting...',
+        variant: 'default',
+      });
+      
+      setTimeout(() => {
+        window.location.href = '/admin';
+      }, 1500);
+      return;
+    }
+
+    try {
+      const response = await api.put('/cart/update', { serviceId, quantity });
+      setItems(response.data.cart.items || []);
+      toast({
+        title: 'Success',
+        description: 'Cart updated',
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to update cart';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
+  // Remove item from cart
+  const removeFromCart = async (serviceId: string) => {
+    if (!isAuthenticated) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please login to manage cart',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Check if user is admin
+    if (user?.role === 'admin') {
+      toast({
+        title: 'Admin Account',
+        description: 'Admin accounts cannot manage cart. Redirecting...',
+        variant: 'default',
+      });
+      
+      setTimeout(() => {
+        window.location.href = '/admin';
+      }, 1500);
+      return;
+    }
+
+    try {
+      const response = await api.del(`/cart/remove/${serviceId}`);
+      setItems(response.data.cart.items || []);
+      toast({
+        title: 'Success',
+        description: 'Removed from cart',
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to remove from cart';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
+  // Clear entire cart
+  const clearCart = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please login to manage cart',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Check if user is admin
+    if (user?.role === 'admin') {
+      toast({
+        title: 'Admin Account',
+        description: 'Admin accounts cannot manage cart. Redirecting...',
+        variant: 'default',
+      });
+      
+      setTimeout(() => {
+        window.location.href = '/admin';
+      }, 1500);
+      return;
+    }
+
+    try {
+      await api.del('/cart/clear');
+      setItems([]);
+      toast({
+        title: 'Success',
+        description: 'Cart cleared',
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to clear cart';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    }
   };
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -61,8 +250,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <CartContext.Provider value={{
       items,
       addToCart,
+      updateCartItem,
       removeFromCart,
       clearCart,
+      fetchCart,
       totalItems,
       totalPrice
     }}>

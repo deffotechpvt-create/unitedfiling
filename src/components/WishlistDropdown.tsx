@@ -16,12 +16,11 @@ const WishlistDropdown: React.FC<WishlistDropdownProps> = ({ isOpen, onClose }) 
 
   const handleMoveToCart = (item: any) => {
     addToCart({
-      id: item.id,
-      name: item.name,
+      id: item.serviceId,
+      name: item.serviceName,
       price: item.price,
     });
-    removeFromWishlist(item.id);
-    toast.success(`${item.name} moved to cart!`);
+    removeFromWishlist(item.serviceId);
   };
 
   if (!isOpen) return null;
@@ -31,11 +30,11 @@ const WishlistDropdown: React.FC<WishlistDropdownProps> = ({ isOpen, onClose }) 
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Wishlist</h3>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded" title="Close wishlist">
             <X className="h-4 w-4" />
           </button>
         </div>
-        
+
         {items.length === 0 ? (
           <div className="text-center py-8">
             <Heart className="h-12 w-12 text-gray-400 mx-auto mb-3" />
@@ -45,21 +44,21 @@ const WishlistDropdown: React.FC<WishlistDropdownProps> = ({ isOpen, onClose }) 
           <>
             <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
               {items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-2 border rounded">
+                <div key={item.serviceId} className="flex items-center justify-between p-2 border rounded">
                   <div className="flex-1">
-                    <h4 className="text-sm font-medium">{item.name}</h4>
+                    <h4 className="text-sm font-medium">{item.serviceName}</h4>
                     <p className="text-xs text-gray-500">₹{item.price}</p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <button 
+                    <button
                       onClick={() => handleMoveToCart(item)}
                       className="p-1 hover:bg-green-100 rounded text-green-600"
                       title="Move to Cart"
                     >
                       <ShoppingCart className="h-3 w-3" />
                     </button>
-                    <button 
-                      onClick={() => removeFromWishlist(item.id)}
+                    <button
+                      onClick={() => removeFromWishlist(item.serviceId)}
                       className="p-1 hover:bg-gray-100 rounded"
                       title="Remove from Wishlist"
                     >
@@ -69,11 +68,11 @@ const WishlistDropdown: React.FC<WishlistDropdownProps> = ({ isOpen, onClose }) 
                 </div>
               ))}
             </div>
-            
+
             <div className="border-t pt-3">
-              <Button 
+              <Button
                 onClick={clearWishlist}
-                variant="outline" 
+                variant="outline"
                 size="sm"
                 className="w-full"
               >

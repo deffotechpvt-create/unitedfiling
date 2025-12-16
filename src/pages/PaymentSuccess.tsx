@@ -1,22 +1,13 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowLeft, Download } from "lucide-react";
-import { useCart } from "@/contexts/CartContext";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get("session_id");
-  const { clearCart } = useCart();
+  const orderId = searchParams.get("orderId");
   const [orderNumber] = useState(`ORD-${Date.now()}`);
-
-  useEffect(() => {
-    if (sessionId) {
-      // Clear the cart after successful payment
-      clearCart();
-    }
-  }, [sessionId, clearCart]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -43,7 +34,7 @@ const PaymentSuccess = () => {
                 <strong>Order Number:</strong> {orderNumber}
               </p>
               <p className="text-sm text-green-700">
-                <strong>Payment ID:</strong> {sessionId}
+                <strong>Order ID:</strong> {orderId}
               </p>
               <p className="text-sm text-green-700">
                 <strong>Date:</strong> {new Date().toLocaleDateString("en-GB")}
@@ -53,8 +44,6 @@ const PaymentSuccess = () => {
             <div className="bg-blue-50 p-4 rounded-lg">
               <h3 className="font-semibold text-blue-800 mb-2">What's Next?</h3>
               <ul className="text-sm text-blue-700 space-y-1">
-                <li>• You will receive a confirmation email shortly</li>
-                <li>• Our team will contact you within 24 hours</li>
                 <li>• Service processing will begin immediately</li>
                 <li>• Track your order status in your account</li>
               </ul>

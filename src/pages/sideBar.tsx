@@ -1,11 +1,14 @@
 
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
+import { useUser } from '@/contexts/UserContext';
 
 const Sidebar = () => {
   const { items, removeFromCart, clearCart, totalItems, totalPrice } = useCart();
+  const navigate = useNavigate();
+  const { user } = useUser();
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 sticky top-24">
@@ -28,13 +31,13 @@ const Sidebar = () => {
           </div>
           <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
             {items.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
+              <div key={item.serviceId} className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex-1">
-                  <h4 className="font-medium text-sm">{item.name}</h4>
+                  <h4 className="font-medium text-sm">{item.serviceName}</h4>
                   <p className="text-sm text-gray-500">₹{item.price.toLocaleString()} x {item.quantity}</p>
                 </div>
                 <button
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCart(item.serviceId)}
                   className="text-red-600 hover:text-red-700 ml-2"
                 >
                   <X className="w-4 h-4" />
@@ -46,7 +49,7 @@ const Sidebar = () => {
             <div className="flex justify-between items-center mb-4">
               <span className="font-semibold">Total: ₹{totalPrice.toLocaleString()}</span>
             </div>
-            <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold" size="lg">
+            <Button  onClick={() => {navigate('/checkout')}} className="w-full bg-green-500 hover:bg-green-600 text-white font-bold" size="lg">
               Proceed to Checkout
             </Button>
           </div>
@@ -54,8 +57,7 @@ const Sidebar = () => {
       )}
 
       <div className="mt-4 text-sm text-center">
-        <span className="text-gray-600">Existing User? </span>
-        <Link to="/auth" className="font-medium text-green-600 hover:text-green-700">Login</Link>
+        <span className="text-gray-600">{user ? `Logged in as ${user.name}` : 'Existing User? Login to save your cart'}</span>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
+import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,7 @@ import { toast } from 'sonner';
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
+  const { user,checkout } = useUser();
   const navigate = useNavigate();
   const [billingInfo, setBillingInfo] = useState({
     name: "",
@@ -20,6 +22,19 @@ const Checkout = () => {
     businessName: "",
     gstin: "",
   });
+
+  // Auto-fill form with user data
+  useEffect(() => {
+    if (user) {
+      setBillingInfo({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        businessName: user.business_name || "",
+        gstin: user.gstin || "",
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (field: string, value: string) => {
     setBillingInfo((prev) => ({ ...prev, [field]: value }));
@@ -30,11 +45,7 @@ const Checkout = () => {
       toast.error("Please fill in required fields");
       return;
     }
-    
-    // Instead of payment processing, show success message and clear cart
-    toast.success('Order placed successfully! We will contact you for payment details.');
-    clearCart();
-    navigate('/');
+    checkout(items);
   };
 
   const gstAmount = Math.round(totalPrice * 0.18);
@@ -186,11 +197,11 @@ const Checkout = () => {
 
                   {items.map((item) => (
                     <div
-                      key={item.id}
+                      key={item.serviceId}
                       className="grid grid-cols-4 gap-4 text-sm py-2 border-b"
                     >
                       <div>
-                        <p className="font-medium">{item.name}</p>
+                        <p className="font-medium">{item.serviceName}</p>
                         <p className="text-gray-600 text-xs">Professional service registration</p>
                       </div>
                       <div className="text-center">{item.quantity}</div>

@@ -1,55 +1,206 @@
+// src/contexts/WishlistContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useApi } from '@/lib/api';
+import { toast } from '@/hooks/use-toast';
+import { useUser } from './UserContext';
 
 interface WishlistItem {
-  id: string;
-  name: string;
+  serviceId: string;
+  serviceName: string;
   price: number;
+  addedAt?: string;
 }
 
 interface WishlistContextType {
   items: WishlistItem[];
-  addToWishlist: (item: WishlistItem) => void;
-  removeFromWishlist: (id: string) => void;
-  clearWishlist: () => void;
+  addToWishlist: (item: { id: string; name: string; price: number }) => Promise<void>;
+  removeFromWishlist: (serviceId: string) => Promise<void>;
+  clearWishlist: () => Promise<void>;
+  fetchWishlist: () => Promise<void>;
   totalItems: number;
-  isInWishlist: (id: string) => boolean;
+  isInWishlist: (serviceId: string) => boolean;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
 export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<WishlistItem[]>(() => {
-    if (typeof window !== 'undefined') {
-      const savedWishlist = localStorage.getItem('wishlist-items');
-      return savedWishlist ? JSON.parse(savedWishlist) : [];
-    }
-    return [];
-  });
+  const api = useApi();
+  const { user, isAuthenticated } = useUser();
+  const [items, setItems] = useState<WishlistItem[]>([]);
 
+  // ✅ FIXED: Fetch wishlist when component mounts or user changes
   useEffect(() => {
-    localStorage.setItem('wishlist-items', JSON.stringify(items));
-  }, [items]);
-
-  const addToWishlist = (newItem: WishlistItem) => {
-    setItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === newItem.id);
-      if (existingItem) {
-        return prevItems; // Item already in wishlist
+    if (user && isAuthenticated) {
+      // Only fetch if user is not admin
+      if (user.role !== 'admin') {
+        fetchWishlist();
       }
-      return [...prevItems, newItem];
-    });
+    } else {
+      // Clear wishlist when user logs out
+      setItems([]);
+    }
+  }, [user, isAuthenticated]);
+
+  // Fetch wishlist from backend
+  const fetchWishlist = async () => {
+    if (!user || user.role === 'admin') {
+      return;
+    }
+
+    try {
+      const response = await api.get('/wishlist');
+      // ✅ FIXED: Use consistent path
+      const wishlistItems = response.data?.wishlist?.items || response.data?.items || [];
+      setItems(wishlistItems);
+    } catch (error) {
+      
+      setItems([]);
+    }
   };
 
-  const removeFromWishlist = (id: string) => {
-    setItems(prevItems => prevItems.filter(item => item.id !== id));
+  // Add item to wishlist
+  const addToWishlist = async ({ id, name, price }: { id: string; name: string; price: number }) => {
+    if (!isAuthenticated) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please login to add items to wishlist',
+        variant: 'destructive',
+      });
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+      return;
+    }
+
+    if (user?.role === 'admin') {
+      toast({
+        title: 'Admin Account Detected',
+        description: 'Admin accounts cannot add items to wishlist. Redirecting to admin dashboard...',
+        variant: 'default',
+      });
+      
+      setTimeout(() => {
+        window.location.href = '/admin';
+      }, 1500);
+      return;
+    }
+
+    try {
+      const response = await api.post('/wishlist/add', {
+        serviceId: id,
+        serviceName: name,
+        price: price,
+      });
+      const wishlistItems = response.data?.wishlist?.items || response.data?.items || [];
+      setItems(wishlistItems);
+      
+      toast({
+        title: 'Success',
+        description: `${name} added to wishlist!`,
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to add to wishlist';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    }
   };
 
-  const clearWishlist = () => {
-    setItems([]);
+  // Remove item from wishlist
+  const removeFromWishlist = async (serviceId: string) => {
+    if (!isAuthenticated) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please login to manage wishlist',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (user?.role === 'admin') {
+      toast({
+        title: 'Admin Account',
+        description: 'Admin accounts cannot manage wishlist. Redirecting...',
+        variant: 'default',
+      });
+      
+      setTimeout(() => {
+        window.location.href = '/admin';
+      }, 1500);
+      return;
+    }
+
+    try {
+      const response = await api.del(`/wishlist/${serviceId}`);
+      
+      const wishlistItems = response.data?.wishlist?.items || response.data?.items || [];
+      setItems(wishlistItems);
+      
+      toast({
+        title: 'Success',
+        description: 'Removed from wishlist',
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to remove from wishlist';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    }
   };
 
-  const isInWishlist = (id: string) => {
-    return items.some(item => item.id === id);
+  // Clear entire wishlist
+  const clearWishlist = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please login to manage wishlist',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (user?.role === 'admin') {
+      toast({
+        title: 'Admin Account',
+        description: 'Admin accounts cannot manage wishlist. Redirecting...',
+        variant: 'default',
+      });
+      
+      setTimeout(() => {
+        window.location.href = '/admin';
+      }, 1500);
+      return;
+    }
+
+    try {
+      await api.del('/wishlist/clear');
+      setItems([]);
+      
+      toast({
+        title: 'Success',
+        description: 'Wishlist cleared',
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to clear wishlist';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
+  // Check if item is in wishlist
+  const isInWishlist = (serviceId: string) => {
+    if (!isAuthenticated || user?.role === 'admin') return false;
+    return items.some(item => item.serviceId === serviceId);
   };
 
   const totalItems = items.length;
@@ -60,6 +211,7 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
       addToWishlist,
       removeFromWishlist,
       clearWishlist,
+      fetchWishlist,
       totalItems,
       isInWishlist
     }}>
