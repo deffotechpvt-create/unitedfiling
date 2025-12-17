@@ -354,6 +354,3 @@ Make sure to set all environment variables in your hosting platform:
 
 For issues or questions, contact the development team.
 
----
-
-Built with ❤️ for United Filings
