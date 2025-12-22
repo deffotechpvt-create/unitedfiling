@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, ArrowLeft } from 'lucide-react';
 import { PasswordInput } from '@/pages/Auth';
@@ -37,33 +36,10 @@ const ChangePassword = () => {
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Password updated successfully!",
-      });
+   
 
       // Clear form
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update password",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+      
   };
 
   return (

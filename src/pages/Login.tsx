@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useApi } from '@/lib/api';
@@ -15,116 +14,22 @@ const Login = () => {
   const { toast } = useToast();
   const { post } = useApi();
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        navigate('/');
-      }
-    });
-
-    // Check current session
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/');
-      }
-    };
-
-    checkSession();
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
+ 
   const handleGoogleLogin = async () => {
     try {
-      setIsLoading(true);
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`
-        }
-      });
-      if (error) throw error;
-    } catch (error) {
+      const { data } = await post('/auth/google');
+      window.location.href = data.url;
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to login with Google. Please try again.",
+        description: error.message || "Failed to initiate Google login. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validation
-    if (!email || !email.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Email is required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast({
-        title: "Validation Error",
-        description: "Please enter a valid email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!password || !password.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Password is required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!isLogin) {
-      if (!fullName || !fullName.trim()) {
-        toast({
-          title: "Validation Error",
-          description: "Full name is required",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (fullName.trim().length < 2) {
-        toast({
-          title: "Validation Error",
-          description: "Full name must be at least 2 characters",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (password.length < 8) {
-        toast({
-          title: "Validation Error",
-          description: "Password must be at least 8 characters",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-        toast({
-          title: "Validation Error",
-          description: "Password must contain uppercase, lowercase, and number",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-
     setIsLoading(true);
 
     try {
@@ -146,13 +51,12 @@ const Login = () => {
               } else {
                 window.location.href = '/profile';
               }
-            }, 1000);
+            }, 1000); // 1 second delay
           })
           .catch((error) => {
-            const errorMessage = error.response?.data?.message || error.message || "Invalid credentials. Please try again.";
             toast({
-              title: "Login Failed",
-              description: errorMessage,
+              title: "Error",
+              description: error.response?.data?.message || error.message || "Invalid credentials. Please try again.",
               variant: "destructive",
             });
           });
@@ -168,18 +72,14 @@ const Login = () => {
             .then((response) => {
               toast({
                 title: "Success",
-                description: "Account created successfully! Please login to continue.",
+                description: "Account created successfully! Please check your email for verification.",
               });
               setIsLogin(true);
-              setFullName('');
-              setEmail('');
-              setPassword('');
             })
             .catch((error) => {
-              const errorMessage = error.response?.data?.message || error.message || "Failed to create account. Please try again.";
               toast({
-                title: "Signup Failed",
-                description: errorMessage,
+                title: "Error",
+                description: error.response?.data?.message,
                 variant: "destructive",
               });
             });
@@ -289,11 +189,6 @@ const Login = () => {
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
-            {!isLogin && (
-              <p className="text-xs text-gray-500 mt-1">
-                Must be 8+ characters with uppercase, lowercase, and number
-              </p>
-            )}
 
             <button
               type="submit"

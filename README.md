@@ -16,7 +16,6 @@ This is the frontend application for United Filings, a comprehensive business se
 - **Data Fetching**: @tanstack/react-query
 - **Form Handling**: React Hook Form + Zod validation
 - **Icons**: Lucide React
-- **Authentication**: Supabase Auth
 - **Animations**: tailwindcss-animate
 
 ## 📁 Project Structure
@@ -49,9 +48,7 @@ src/
 │   ├── use-mobile.tsx        # Responsive hook
 │   ├── use-toast.ts          # Toast notifications
 │   └── useExpertRequest.ts   # Expert consultation
-├── integrations/supabase/
-│   ├── client.ts             # Supabase client
-│   └── types.ts              # Type definitions
+├
 ├── lib/
 │   ├── api.js                # API client wrapper
 │   └── utils.ts              # Utility functions
@@ -152,7 +149,6 @@ npx shadcn-ui@latest add [component-name]
 
 1. **User Registration** (`/signup`)
    - Form validation with Zod
-   - Supabase authentication
    - Email verification
    - Toast notifications
 
@@ -252,8 +248,6 @@ const response = await post('/auth/login', { email, password });
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| VITE_SUPABASE_URL | Supabase project URL | Yes | - |
-| VITE_SUPABASE_ANON_KEY | Supabase anonymous key | Yes | - |
 | VITE_API_URL | Backend API URL | Yes | http://localhost:5000/api |
 | VITE_APP_NAME | Application name | No | United Filings |
 | VITE_APP_URL | Frontend URL | No | http://localhost:8080 |
@@ -300,8 +294,6 @@ Recommended platforms:
 ### Environment Variables in Production
 
 Make sure to set all environment variables in your hosting platform:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
 - `VITE_API_URL` (production API URL)
 
 ## 🐛 Common Issues & Solutions
@@ -320,10 +312,7 @@ Make sure to set all environment variables in your hosting platform:
 - Check TypeScript errors: `npx tsc --noEmit`
 - Update Vite cache: `rm -rf node_modules/.vite`
 
-### 4. Supabase Connection
-- Verify credentials in `.env`
-- Check Supabase project is active
-- Ensure correct URL format (includes https://)
+
 
 ## 📚 Resources
 
@@ -332,7 +321,6 @@ Make sure to set all environment variables in your hosting platform:
 - [shadcn-ui Components](https://ui.shadcn.com/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [React Router](https://reactrouter.com/)
-- [Supabase Docs](https://supabase.com/docs)
 
 ## 🤝 Contributing
 
