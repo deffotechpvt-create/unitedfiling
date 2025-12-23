@@ -1,12 +1,14 @@
 import axios from "axios";
 
 // Determine the base URL
+// Determine the base URL
 export const getBaseURL = () => {
-  if(import.meta.env.NODE_ENV==='production')
-    return import.meta.env.VITE_API_URL;
-  else
-    return "http://localhost:5000/api";
-    
+if(import.meta.env.VITE_APP_NODE_ENV === 'production') {
+    return import.meta.env.VITE_APP_API_BASE ;
+  }
+  else{
+    return 'http://localhost:5000/api';
+  }
 };
 
 // Axios instance

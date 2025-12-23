@@ -13,7 +13,6 @@ const Login = () => {
   const { toast } = useToast();
   const { post } = useApi();
 
-
   const handleGoogleLogin = async () => {
     try {
       const { data } = await post('/auth/google');
@@ -68,6 +67,7 @@ const Login = () => {
           password,
         })
           .then((response) => {
+             window.location.href = '/';
             toast({
               title: "Success",
               description: "Account created successfully! Please check your email for verification.",
