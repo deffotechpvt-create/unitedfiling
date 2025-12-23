@@ -81,7 +81,7 @@ const HeroSection = () => {
                   <AddToCartButton
                     serviceId="gst-software-registration"
                     serviceName="GST Software & Registration"
-                    price={2999}
+                    price={799}
                     className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
                     variant="outline"
                   >
@@ -90,7 +90,7 @@ const HeroSection = () => {
                   <AddToWishlistButton
                     serviceId="gst-software-registration"
                     serviceName="GST Software & Registration"
-                    price={2999}
+                    price={799}
                   />
                 </div>
               </CardContent>
@@ -128,7 +128,7 @@ const HeroSection = () => {
                   <AddToCartButton
                     serviceId="gst-filing-registration-6months"
                     serviceName="GST Filing & Registration - 6 Months"
-                    price={4999}
+                    price={799}
                     className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
                     variant="outline"
                   >
@@ -137,7 +137,7 @@ const HeroSection = () => {
                   <AddToWishlistButton
                     serviceId="gst-filing-registration-6months"
                     serviceName="GST Filing & Registration - 6 Months"
-                    price={4999}
+                    price={799}
                   />
                 </div>
               </CardContent>

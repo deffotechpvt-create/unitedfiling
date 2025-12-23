@@ -70,7 +70,7 @@ const HeroSection = () => {
                   <AddToCartButton
                     serviceId="MCA Name Approval"
                     serviceName="MCA Name Approval"
-                    price={2999}
+                    price={1999}
                     className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
                     variant="outline"
                   >
@@ -123,7 +123,7 @@ const HeroSection = () => {
                   <AddToCartButton
                     serviceId="Andaman and Nicobar Islands"
                     serviceName="Andaman and Nicobar Islands"
-                    price={2999}
+                    price={1999}
                     className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
                     variant="outline"
                   >

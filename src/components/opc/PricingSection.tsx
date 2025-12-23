@@ -35,7 +35,7 @@ const PricingSection = () => {
               <AddToCartButton
                 serviceId="opc-registration"
                 serviceName="One Person Company Registration"
-                price={12999}
+                price={1999}
                 className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
                 variant="outline"
               >
@@ -44,7 +44,7 @@ const PricingSection = () => {
               <AddToWishlistButton
                 serviceId="opc-registration"
                 serviceName="One Person Company Registration"
-                price={12999}
+                price={1999}
               />
             </div>
           </CardContent>
@@ -77,7 +77,7 @@ const PricingSection = () => {
               <AddToCartButton
                 serviceId="opc-gst-registration"
                 serviceName="OPC + GST Registration"
-                price={16999}
+                price={1999}
                 className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
                 variant="outline"
               >
@@ -86,7 +86,7 @@ const PricingSection = () => {
               <AddToWishlistButton
                 serviceId="opc-gst-registration"
                 serviceName="OPC + GST Registration"
-                price={16999}
+                price={1999}
               />
             </div>
           </CardContent>

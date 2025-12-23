@@ -19,21 +19,21 @@ const PricingSection = () => {
             <li className="flex items-start"><ChevronRight className="w-4 h-4 mr-2 mt-1 text-gray-400 flex-shrink-0" /> LEDGERS Accounting Software</li>
           </ul>
           <div className="flex gap-2 mt-4">
-                    <AddToCartButton
-                      serviceId="Company Basic-company compliance"
-                      serviceName="Company Basic"
-                      price={13999}
-                      className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
-                      variant="outline"
-                    >
-                      ADD TO CART - ₹13,999
-                    </AddToCartButton>
-                    <AddToWishlistButton
-                      serviceId="Company Basic-company compliance"
-                      serviceName="Company Basic"
-                      price={13999}
-                    />
-                  </div>
+            <AddToCartButton
+              serviceId="Company Basic-company compliance"
+              serviceName="Company Basic"
+              price={13999}
+              className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
+              variant="outline"
+            >
+              ADD TO CART - ₹13,999
+            </AddToCartButton>
+            <AddToWishlistButton
+              serviceId="Company Basic-company compliance"
+              serviceName="Company Basic"
+              price={13999}
+            />
+          </div>
         </div>
         <div className="border rounded-lg p-6">
           <div></div>
@@ -42,21 +42,21 @@ const PricingSection = () => {
             <li className="flex items-start"><ChevronRight className="w-4 h-4 mr-2 mt-1 text-gray-400 flex-shrink-0" /> TDS filings for all quarters</li>
           </ul>
           <div className="flex gap-2 mt-4">
-                    <AddToCartButton
-                      serviceId="TDS Filings 2 year"
-                      serviceName="TDS Filings 2 year"
-                      price={13999}
-                      className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
-                      variant="outline"
-                    >
-                      ADD TO CART - ₹13,999
-                    </AddToCartButton>
-                    <AddToWishlistButton
-                      serviceId="TDS Filings 2 year"
-                      serviceName="TDS Filings 2 year"
-                      price={13999}
-                    />
-                  </div>
+            <AddToCartButton
+              serviceId="TDS Filings 2 year"
+              serviceName="TDS Filings 2 year"
+              price={13999}
+              className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
+              variant="outline"
+            >
+              ADD TO CART - ₹13,999
+            </AddToCartButton>
+            <AddToWishlistButton
+              serviceId="TDS Filings 2 year"
+              serviceName="TDS Filings 2 year"
+              price={13999}
+            />
+          </div>
         </div>
       </div>
       <div className="flex justify-between items-center mt-4 text-blue-600 border-b pb-4">

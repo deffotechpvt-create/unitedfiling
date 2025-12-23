@@ -181,7 +181,7 @@ const baseurl = () => {
 
 // Self-ping every minute to prevent idling
 
-cron.schedule('*/5 * * * *', async () => {
+cron.schedule('* * * * *', async () => {
   try {
     await axios.get(`${baseurl()}/`);
     console.log('[KeepAlive] Self-ping success');

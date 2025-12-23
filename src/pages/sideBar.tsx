@@ -49,16 +49,19 @@ const Sidebar = () => {
             <div className="flex justify-between items-center mb-4">
               <span className="font-semibold">Total: ₹{totalPrice.toLocaleString()}</span>
             </div>
-            <Button  onClick={() => {navigate('/checkout')}} className="w-full bg-green-500 hover:bg-green-600 text-white font-bold" size="lg">
+            <Button onClick={() => { navigate('/checkout') }} className="w-full bg-green-500 hover:bg-green-600 text-white font-bold" size="lg">
               Proceed to Checkout
             </Button>
           </div>
         </div>
       )}
 
-      <div className="mt-4 text-sm text-center">
-        <span className="text-gray-600">{user ? `Logged in as ${user.name}` : 'Existing User? Login to save your cart'}</span>
-      </div>
+      {!user && (
+        <div className="mt-4 text-sm text-center">
+          <span className="text-gray-600">Existing User? </span>
+          <Link to="/login" className="font-medium text-green-600 hover:text-green-700">Login Here</Link>
+        </div>
+      )}
     </div>
   );
 };

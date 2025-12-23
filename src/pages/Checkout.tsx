@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
-  const { user,checkout } = useUser();
+  const { user, checkout } = useUser();
   const navigate = useNavigate();
   const [billingInfo, setBillingInfo] = useState({
     name: "",
@@ -40,12 +40,28 @@ const Checkout = () => {
     setBillingInfo((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handlePayment = () => {
-    if (!billingInfo.name || !billingInfo.email) {
-      toast.error("Please fill in required fields");
+  const handlePayment = async () => {
+    // Validate billing info
+    const { name, email, phone } = billingInfo;
+    const missingFields = [];
+
+    if (!name) missingFields.push("customer name");
+    if (!email) missingFields.push("customer email");
+    if (!phone) missingFields.push("customer phone");
+
+    if (missingFields.length > 0) {
+      toast.error(`Please fill in ${missingFields.join(", ")}`);
       return;
     }
-    checkout(items);
+
+    try {
+      await checkout(items);
+      toast.success("Payment successful!");
+      navigate('/');
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Error processing order. Please try again.");
+    }
   };
 
   const gstAmount = Math.round(totalPrice * 0.18);
@@ -269,7 +285,7 @@ const Checkout = () => {
 
                 <div className="mt-4 text-xs text-gray-600">
                   <p>
-                    <strong>Notes:</strong> Invoices will be issued and service will be initiated on receipt of payment. 
+                    <strong>Notes:</strong> Invoices will be issued and service will be initiated on receipt of payment.
                     Read our terms of service & refund policy online. In case of bank transfer please allow 24 hours for service activation.
                   </p>
                 </div>

@@ -20,7 +20,7 @@ const PricingSection = () => {
                   <AddToCartButton
                     serviceId="Chennai Trade License"
                     serviceName="Chennai"
-                    price={2999}
+                    price={5999}
                     className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
                     variant="outline"
                   >

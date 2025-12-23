@@ -111,7 +111,7 @@ const HeroSection = () => {
                   <AddToCartButton 
                     serviceId="fssai-state-license-trader"
                     serviceName="FSSAI State License - Trader, Restaurant - 1 Year"
-                    price={4999}
+                    price={3699}
                     className="flex-1 bg-white text-green-600 border border-green-600 hover:bg-green-50"
                     variant="outline"
                   >

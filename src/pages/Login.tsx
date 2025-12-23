@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useApi } from '@/lib/api';
@@ -10,11 +10,10 @@ const Login = () => {
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const { toast } = useToast();
   const { post } = useApi();
 
- 
+
   const handleGoogleLogin = async () => {
     try {
       const { data } = await post('/auth/google');
@@ -63,26 +62,39 @@ const Login = () => {
 
       }
       else {
-        await
-          post('/auth/signup', {
-            name: fullName,
-            email,
-            password,
+        await post('/auth/signup', {
+          name: fullName,
+          email,
+          password,
+        })
+          .then((response) => {
+            toast({
+              title: "Success",
+              description: "Account created successfully! Please check your email for verification.",
+            });
+            setIsLogin(true);
           })
-            .then((response) => {
+          .catch((error) => {
+            // Check if backend returned validation errors
+            const validationErrors = error.response?.data?.errors;
+            if (validationErrors && validationErrors.length > 0) {
+              // Combine all error messages into one string
+              const errorMessage = validationErrors.map(err => err.msg).join(', ');
               toast({
-                title: "Success",
-                description: "Account created successfully! Please check your email for verification.",
-              });
-              setIsLogin(true);
-            })
-            .catch((error) => {
-              toast({
-                title: "Error",
-                description: error.response?.data?.message,
+                title: "Validation Error",
+                description: errorMessage,
                 variant: "destructive",
               });
-            });
+            } else {
+              // Fallback to generic error message
+              toast({
+                title: "Error",
+                description: error.response?.data?.message || "Something went wrong",
+                variant: "destructive",
+              });
+            }
+          });
+
       }
 
     } catch (error: any) {
